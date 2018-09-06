@@ -11,8 +11,8 @@ import java.util.Map;
  * Created by lenovo on 2018/9/6.
  */
 public class TimingCheckIn {
-    private final static String email = "2462496781@qq.com";
-    private final static String passwd = "123456789";
+    private final static String email = "帐号";
+    private final static String passwd = "密码";
     private final static String remember_me = "week";
 
     private final static String loginUrl = "https://ssr.0v0.xyz/auth/login";
