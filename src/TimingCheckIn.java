@@ -1,6 +1,10 @@
+import javax.net.ssl.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -9,13 +13,18 @@ import java.util.Map;
  * Created by lenovo on 2018/9/6.
  */
 public class TimingCheckIn {
-    private final static String email = "账号";
+    // DNS域名污染 域名变化 直接使用IP
+    private final static String IP = "IP地址";
+    private final static String email = "邮箱";
     private final static String passwd = "密码";
     private final static String remember_me = "week";
 
-    private final static String loginUrl = "https://ssr.0v0.xyz/auth/login";
-    private final static String originURL = "https://ssr.0v0.xyz";
-    private final static String checkinUrl = "https://ssr.0v0.xyz/user/checkin";
+//    private final static String loginUrl = "https://ssr.0v0.xyz/auth/login";
+    private final static String loginUrl = IP + "/auth/login";
+//    private final static String originURL = "https://ssr.0v0.xyz";
+    private final static String originURL = IP;
+//    private final static String checkinUrl = "https://ssr.0v0.xyz/user/checkin";
+    private final static String checkinUrl = IP + "/user/checkin";
 
     private final static String logPosition = "D:\\temp\\TimingCheckIn\\TimingCheckIn.txt";
     private final static String errorLogPosition = "D:\\temp\\TimingCheckIn\\error.txt";
@@ -102,11 +111,18 @@ public class TimingCheckIn {
      * 合并登录和签到的post请求
      */
     private static String SendPost(String sUrl, String param, String sessionId) {
+
+
         PrintWriter out = null;
         BufferedReader in = null;
         String result = "";
 
         try {
+            HttpsURLConnection.setDefaultHostnameVerifier(new TimingCheckIn().new NullHostNameVerifier());
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
             URL url = new URL(sUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();//编写请求头
             //将sessionId的值写入Cookie
@@ -150,7 +166,7 @@ public class TimingCheckIn {
             if (sessionId == null) {
                 getSessionId(map);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -166,4 +182,35 @@ public class TimingCheckIn {
         }
         return result;
     }
+
+
+
+    static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+    } };
+
+    public class NullHostNameVerifier implements HostnameVerifier {
+        /*
+         * (non-Javadoc)
+         *
+         * @see javax.net.ssl.HostnameVerifier#verify(java.lang.String,
+         * javax.net.ssl.SSLSession)
+         */
+        @Override
+        public boolean verify(String arg0, SSLSession arg1) {
+            return true;
+        }
+    }
+
 }
