@@ -20,7 +20,7 @@ public class InstallCert {
 
     // 要访问的HTTPS服务，如访问 https://www.shanhy.com
 // 我要测试的网址是https://ssr.0v0.xyz/auth/login  但必须用ssr.0v0.xyz
-    public static final String hostName = "www.shanhy.com";
+    public static final String hostName = "45.76.204.234";
 
     public static void main(String[] args) throws Exception {
         args = new String[]{hostName};
